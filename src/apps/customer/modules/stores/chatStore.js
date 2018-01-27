@@ -5,11 +5,12 @@ import { getUrl } from 'src/framework/url';
 
 class Store {
   @observable
-  users = [
-    {
-      id: 'user 1'
-    }
-  ];
+  users = [];
+
+  @action.bound
+  addUser(payload) {
+    this.users.push(payload);
+  }
 }
 
 const store = new Store();

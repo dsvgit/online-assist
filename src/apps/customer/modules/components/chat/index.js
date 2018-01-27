@@ -9,7 +9,7 @@ import List, {
   ListItemText
 } from 'material-ui/List';
 
-import { getUrl } from 'src/framework/url';
+import { getWsUrl } from 'src/framework/url';
 import BaseLayout from 'src/components/baseLayout';
 
 const styles = theme => ({
@@ -29,11 +29,41 @@ class ChatPage extends Component {
     super(props);
   }
 
-  render() {
+  componentDidMount() {
+    const {
+      chatStore
+    } = this.props;
+
+    const socket = new WebSocket(getWsUrl('customers'));
+
+    let a = 0;
+    setInterval(() => chatStore.addUser({ id: a++ }), 1000);
+  }
+
+  renderUsersList = () => {
     const {
       chatStore: {
         users
-      },
+      }
+    } = this.props;
+
+    if (!users || !users.length) {
+      return (
+        <ListItem>
+          <ListItemText primary="Нет активных пользователей" />
+        </ListItem>
+      );
+    }
+
+    return _.map(users, user => (
+      <ListItem key={user.id} button>
+        <ListItemText primary={user.id} secondary="online" />
+      </ListItem>
+    ));
+  };
+
+  render() {
+    const {
       classes
     } = this.props;
 
@@ -41,11 +71,7 @@ class ChatPage extends Component {
       <BaseLayout align="left" title="Чат">
         <div className={classes.usersList}>
           <List>
-            {_.map(users, user => (
-            <ListItem button>
-              <ListItemText primary={user.id} secondary="online" />
-            </ListItem>
-            ))}
+            {this.renderUsersList()}
           </List>
         </div>
       </BaseLayout>

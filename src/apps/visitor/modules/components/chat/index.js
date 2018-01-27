@@ -5,7 +5,7 @@ import { withStyles } from 'material-ui/styles';
 import { observer, inject } from 'mobx-react';
 import io from 'socket.io-client';
 
-import { getUrl } from 'src/framework/url';
+import { getWsUrl } from 'src/framework/url';
 import BaseLayout from 'src/components/baseLayout/index';
 
 const styles = {
@@ -23,6 +23,10 @@ const styles = {
 class ChatPage extends Component {
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount() {
+    const socket = new WebSocket(getWsUrl('visitors'));
   }
 
   render() {
