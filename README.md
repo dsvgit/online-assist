@@ -9,7 +9,9 @@ npm run init-build-config -- --apiHost http://localhost:8080
 ```
 
 ```
-npm run dev-server -- --env.app customer (localhost:3001)
+localhost:3001
+npm run dev-server -- --env.app customer 
 
-npm run dev-server -- --env.app visitor (localhost:3002)
+localhost:3002
+npm run dev-server -- --env.app visitor
 ```
