@@ -5,7 +5,7 @@ npm i
 ```
 
 ```
-npm run init-build-config -- --apiHost http://localhost:3000
+npm run init-build-config -- --apiHost http://localhost:8080
 ```
 
 ```
