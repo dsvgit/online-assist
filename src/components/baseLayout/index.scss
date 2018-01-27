@@ -1,0 +1,17 @@
+.layout {
+  padding: 5px 0px;
+  display: flex;
+  flex-direction: column;
+
+  &.center {
+    align-items: center;
+  }
+
+  &.left {
+    align-items: flex-start;
+  }
+
+  &.right {
+    align-items: flex-end;
+  }
+}
