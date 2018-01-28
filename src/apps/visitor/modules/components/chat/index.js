@@ -4,13 +4,18 @@ import classnames from 'classnames';
 import { withStyles } from 'material-ui/styles';
 import { observer, inject } from 'mobx-react';
 import io from 'socket.io-client';
+import Stomp from 'stompjs';
+import SockJS from 'sockjs-client';
 
 import customAxios from 'src/framework/customAxios';
 import { getUrl, getWsUrl } from 'src/framework/url';
 import makeId from 'src/framework/makeId';
 import BaseLayout from 'src/components/baseLayout/index';
 
-const names = ['Алексей', 'Иван', 'Александр', 'Платон'];
+const names = ['Алексей', 'Иван', 'Александр',
+  'Платон', 'Григорий', 'Михаил',
+  'Владимир', 'Анастасия', 'Екатерина',
+  'Анна', 'Алена', 'Евгения'];
 
 const styles = {
   message: {
@@ -32,26 +37,17 @@ class ChatPage extends Component {
   }
 
   componentDidMount() {
-    // const socket = new WebSocket(getWsUrl('app/customer/visitors'));
-    this.connect();
-    window.addEventListener('beforeunload', this.disconnect);
-  }
+    const socket = new SockJS(getUrl('/ws-visitors'));
 
-  componentWillUnmount() {
-    this.disconnect();
-    window.removeEventListener('beforeunload', this.disconnect);
-  }
+    const stompClient = Stomp.over(socket);
 
-  connect = () => {
-    customAxios.post(getUrl('api/visitor'), {
-      id: this.id,
-      name: names[Math.floor(Math.random() * names.length)]
+    stompClient.connect({}, function (frame) {
+      stompClient.send('/app/visitor.add', {}, JSON.stringify({
+        id: makeId(),
+        name: names[Math.floor(Math.random() * names.length)]
+      }));
     });
-  };
-
-  disconnect = () => {
-    customAxios.delete(getUrl(`api/visitor/${this.id}`));
-  };
+  }
 
   render() {
     const {

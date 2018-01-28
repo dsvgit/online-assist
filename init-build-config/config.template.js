@@ -1,3 +1,4 @@
 export default {
-  'apiHost': '<%= apiHost%>'
+  'apiHost': '<%= apiHost%>',
+  'wsHost': '<%= wsHost%>'
 };

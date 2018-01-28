@@ -8,9 +8,14 @@ import List, {
   ListItem,
   ListItemText
 } from 'material-ui/List';
+import Stomp from 'stompjs';
+import SockJS from 'sockjs-client';
 
-import { getWsUrl } from 'src/framework/url';
+import { getUrl, getWsUrl } from 'src/framework/url';
 import BaseLayout from 'src/components/baseLayout';
+import makeId from 'src/framework/makeId';
+
+const names = ['Алексей', 'Иван', 'Александр', 'Платон'];
 
 const styles = theme => ({
   container: {
@@ -60,18 +65,16 @@ class ChatPage extends Component {
       chatStore
     } = this.props;
 
-    const socket = new WebSocket(getWsUrl('customers'));
 
-    chatStore.addUser({ id: 0 });
-    chatStore.addUser({ id: 1 });
-    chatStore.addUser({ id: 2 });
-    chatStore.addUser({ id: 3 });
-    chatStore.addUser({ id: 4 });
-    chatStore.addUser({ id: 5 });
-    chatStore.addUser({ id: 6 });
-    chatStore.addUser({ id: 7 });
-    chatStore.addUser({ id: 8 });
-    chatStore.addUser({ id: 9 });
+    const socket = new SockJS(getUrl('/ws-visitors'));
+
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, frame => {
+      stompClient.subscribe('/customer/visitors', visitor => {
+        chatStore.addUser(JSON.parse(visitor.body));
+      });
+    });
   }
 
   renderHeader = () => {
@@ -84,7 +87,7 @@ class ChatPage extends Component {
 
     return (
       <header className={classes.chatHeader}>
-        {currentUser.id}
+        {currentUser.name}
       </header>
     );
   };
@@ -107,7 +110,7 @@ class ChatPage extends Component {
 
     return _.map(users, user => (
       <ListItem key={user.id} onClick={() => chatStore.changeCurrentUser(user.id)} button>
-        <ListItemText primary={user.id} secondary="online" />
+        <ListItemText primary={user.name} secondary={`Активен: ${user.sSingInDate}`} />
       </ListItem>
     ));
   };

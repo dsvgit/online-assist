@@ -4,7 +4,8 @@ var TEMPLATE_PATH = require('./constants').TEMPLATE_PATH;
 var DIST_PATH = require('./constants').DIST_PATH;
 
 var defaultConfig = {
-  'apiHost': 'http://localhost:3000'
+  'apiHost': 'http://localhost:3005',
+  'wsHost': 'ws://localhost:3005',
 };
 
 function init(_options) {
