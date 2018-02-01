@@ -12,11 +12,6 @@ import { getUrl, getWsUrl } from 'src/framework/url';
 import makeId from 'src/framework/makeId';
 import BaseLayout from 'src/components/baseLayout/index';
 
-const names = ['Алексей', 'Иван', 'Александр',
-  'Платон', 'Григорий', 'Михаил',
-  'Владимир', 'Анастасия', 'Екатерина',
-  'Анна', 'Алена', 'Евгения'];
-
 const styles = {
   message: {
     margin: '0 auto',
@@ -33,30 +28,64 @@ class ChatPage extends Component {
   constructor(props) {
     super(props);
 
-    this.id = makeId();
+    this.socket = null;
+    this.stompClient = null;
   }
 
   componentDidMount() {
-    const socket = new SockJS(getUrl('/ws-visitors'));
+    const { chatStore } = this.props;
 
-    const stompClient = Stomp.over(socket);
+    this.socket = new SockJS(getUrl('ws-customers'));
+    this.stompClient = Stomp.over(this.socket);
 
-    stompClient.connect({}, function (frame) {
-      stompClient.send('/app/visitor.add', {}, JSON.stringify({
-        id: makeId(),
-        name: names[Math.floor(Math.random() * names.length)]
-      }));
+    chatStore.connect()
+    .then(response => {
+      const userId = response.data.id;
+
+      this.stompClient.connect({}, frame => {
+        this.stompClient.subscribe(`/chat/room1/${userId}`, message => {
+          console.log(message);
+          chatStore.addMessage(JSON.parse(message.body));
+        });
+
+        chatStore.setConnected(true);
+      });
     });
   }
 
+  sendMessage = () => {
+    const {
+      chatStore,
+      chatStore: {
+        userId
+      }
+    } = this.props;
+
+    chatStore.sendMessage({
+      visitorID: userId,
+      roomID: 'room1',
+      message: 'Новое сообщение'
+    });
+  };
+
   render() {
     const {
+      chatStore: {
+        userId,
+        connected,
+        messages
+      },
       classes
     } = this.props;
 
     return (
       <div className={classes.message}>
         Оставьте свое сообщение в этой форме, и мы получим его на e-mail и обязательно ответим!
+        <div>{userId}</div>
+        {_.map(messages, (message, i) => (
+          <div key={i}>{message.message}</div>
+        ))}
+        <button disabled={!connected} onClick={this.sendMessage}>Отправить сообщение</button>
       </div>
     );
   }
